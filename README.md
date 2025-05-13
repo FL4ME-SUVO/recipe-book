@@ -24,20 +24,20 @@ A fully functional Recipe Book web application built using **React (TypeScript)*
 
 ## 📁 Folder Structure
 
-recipe-book/
-├── public/
-│ └── index.html
-├── src/
-│ ├── components/
-│ │ ├── RecipeForm.tsx
-│ │ ├── RecipeCard.tsx
-│ │ └── SearchBar.tsx
-│ ├── types/
-│ │ └── recipe.d.ts
-│ ├── App.tsx
-│ ├── main.tsx
-│ └── index.css
-├── tailwind.config.js
-├── tsconfig.json
-├── package.json
-└── README.md
+    recipe-book/
+    ├── public/
+    │ └── index.html
+    ├── src/
+    │ ├── components/
+    │ │ ├── RecipeForm.tsx
+    │ │ ├── RecipeCard.tsx
+    │ │ └── SearchBar.tsx
+    │ ├── types/
+    │ │ └── recipe.d.ts
+    │ ├── App.tsx
+    │ ├── main.tsx
+    │ └── index.css
+    ├── tailwind.config.js
+    ├── tsconfig.json
+    ├── package.json
+    └── README.md
