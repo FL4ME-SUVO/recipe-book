@@ -2,7 +2,7 @@
 
 A fully functional Recipe Book web application built using **React (TypeScript)** and **Tailwind CSS**. Users can add, view, and search for recipes with full details and images. Data is stored in the browser using `localStorage`.
 
----
+
 
 ## 🌟 Features
 
@@ -12,7 +12,7 @@ A fully functional Recipe Book web application built using **React (TypeScript)*
 - **Local Storage**: Recipes persist across browser sessions.
 - **Responsive Design**: Tailwind CSS ensures mobile-friendly UI.
 
----
+
 
 ## 🧰 Tech Stack
 
@@ -24,3 +24,20 @@ A fully functional Recipe Book web application built using **React (TypeScript)*
 
 ## 📁 Folder Structure
 
+recipe-book/
+├── public/
+│ └── index.html
+├── src/
+│ ├── components/
+│ │ ├── RecipeForm.tsx
+│ │ ├── RecipeCard.tsx
+│ │ └── SearchBar.tsx
+│ ├── types/
+│ │ └── recipe.d.ts
+│ ├── App.tsx
+│ ├── main.tsx
+│ └── index.css
+├── tailwind.config.js
+├── tsconfig.json
+├── package.json
+└── README.md
