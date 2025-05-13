@@ -19,6 +19,3 @@ A fully functional Recipe Book web application built using **React (TypeScript)*
 - **React (TypeScript)**
 - **Tailwind CSS**
 - **localStorage API**
-
----
-
