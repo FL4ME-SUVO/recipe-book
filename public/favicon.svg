@@ -1,0 +1,30 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="url(#gradient)"/>
+  
+  <!-- Recipe book -->
+  <rect x="8" y="10" width="16" height="12" rx="2" fill="white"/>
+  <rect x="9" y="11" width="14" height="10" rx="1" fill="#6366f1"/>
+  
+  <!-- Book spine -->
+  <rect x="12" y="11" width="2" height="10" fill="#f59e0b"/>
+  
+  <!-- Book lines (text) -->
+  <rect x="14" y="12.5" width="8" height="0.5" fill="white"/>
+  <rect x="14" y="13.5" width="7" height="0.5" fill="white"/>
+  <rect x="14" y="14.5" width="8" height="0.5" fill="white"/>
+  <rect x="14" y="15.5" width="6" height="0.5" fill="white"/>
+  <rect x="14" y="16.5" width="8" height="0.5" fill="white"/>
+  <rect x="14" y="17.5" width="5" height="0.5" fill="white"/>
+  
+  <!-- Letter R for Recipe -->
+  <text x="16" y="20" font-family="Arial, sans-serif" font-size="8" font-weight="bold" text-anchor="middle" fill="white">R</text>
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg> 

@@ -98,6 +98,24 @@ function App() {
     setSelectedRecipe(null);
   };
 
+  const handleDeleteRecipe = (recipeId: number, recipeName: string, e?: React.MouseEvent) => {
+    e?.stopPropagation(); // Prevent modal from opening when clicking delete
+    
+    const confirmed = window.confirm(`Are you sure you want to delete "${recipeName}"? This action cannot be undone.`);
+    
+    if (confirmed) {
+      const updatedRecipes = recipes.filter(recipe => recipe.id !== recipeId);
+      saveRecipes(updatedRecipes);
+      
+      // Close modal if it's open
+      if (showModal && selectedRecipe?.id === recipeId) {
+        closeModal();
+      }
+      
+      alert(`Recipe "${recipeName}" has been deleted successfully!`);
+    }
+  };
+
   return (
     <div className="app">
       <header>
@@ -126,6 +144,15 @@ function App() {
                     className="recipe-card"
                     onClick={() => showRecipeDetails(recipe)}
                   >
+                    <div className="recipe-card-header">
+                      <button
+                        className="delete-button"
+                        onClick={(e) => handleDeleteRecipe(recipe.id, recipe.name, e)}
+                        title="Delete recipe"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                     <img src={recipe.imageData} alt={recipe.name} className="recipe-image" />
                     <div className="recipe-info">
                       <h3>{recipe.name}</h3>
@@ -201,8 +228,17 @@ function App() {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <span className="close-button" onClick={closeModal}>&times;</span>
               <div className="recipe-details">
+                <div className="modal-header">
+                  <h2>{selectedRecipe.name}</h2>
+                  <button
+                    className="delete-button modal-delete"
+                    onClick={() => handleDeleteRecipe(selectedRecipe.id, selectedRecipe.name)}
+                    title="Delete recipe"
+                  >
+                    🗑️ Delete Recipe
+                  </button>
+                </div>
                 <img src={selectedRecipe.imageData} alt={selectedRecipe.name} className="detail-image" />
-                <h2>{selectedRecipe.name}</h2>
                 <div className="detail-section">
                   <h3>Ingredients:</h3>
                   <ul>

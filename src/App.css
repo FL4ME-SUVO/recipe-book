@@ -221,6 +221,47 @@ header h1 {
   font-size: 1rem;
 }
 
+/* Recipe Card Header with Delete Button */
+.recipe-card-header {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.recipe-card:hover .recipe-card-header {
+  opacity: 1;
+}
+
+.delete-button {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+}
+
+.delete-button:hover {
+  background: rgb(239, 68, 68);
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+.delete-button:active {
+  transform: scale(0.95);
+}
+
 /* Form Section */
 .form-container {
   background: var(--background);
@@ -561,6 +602,29 @@ button[type="submit"]:active {
   .modal {
     padding: 0.5rem;
   }
+
+  .recipe-card-header {
+    opacity: 1; /* Always visible on mobile */
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  
+  .delete-button {
+    min-width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .modal-delete {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
@@ -583,6 +647,17 @@ button[type="submit"]:active {
 
   .recipe-details {
     padding: 1rem;
+  }
+
+  .recipe-card-header {
+    top: 0.25rem;
+    right: 0.25rem;
+  }
+  
+  .delete-button {
+    min-width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.625rem;
   }
 }
 
@@ -614,4 +689,44 @@ button[type="submit"]:active {
 .recipe-card:nth-child(4) { animation-delay: 0.4s; }
 .recipe-card:nth-child(5) { animation-delay: 0.5s; }
 .recipe-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Modal Delete Button */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.modal-header h2 {
+  margin: 0;
+  flex: 1;
+}
+
+.modal-delete {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.modal-delete:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-delete:active {
+  transform: translateY(0);
+}
 
