@@ -18,6 +18,32 @@ const DeleteIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
+const EditIcon = ({ className = "" }: { className?: string }) => (
+  <svg 
+    width="16" 
+    height="16" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path 
+      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+    <path 
+      d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 const RecipeBookIcon = ({ className = "" }: { className?: string }) => (
   <svg 
     width="24" 
@@ -128,6 +154,18 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; show: boolean }>({
+    message: '',
+    type: 'success',
+    show: false
+  });
+  const [confirmDelete, setConfirmDelete] = useState<{ show: boolean; recipeId: number; recipeName: string }>({
+    show: false,
+    recipeId: 0,
+    recipeName: ''
+  });
   const [formData, setFormData] = useState({
     name: '',
     ingredients: '',
@@ -164,6 +202,13 @@ function App() {
     localStorage.setItem('recipes', JSON.stringify(newRecipes));
   };
 
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type, show: true });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 4000);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -181,24 +226,106 @@ function App() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.image) {
-      alert('Please upload an image.');
+    // Validate required fields
+    if (!formData.name.trim()) {
+      showToast('Please enter a recipe name.', 'error');
       return;
     }
 
-    const newRecipe: Recipe = {
-      id: Date.now(),
-      name: formData.name.trim(),
-      ingredients: formData.ingredients.split('\n').map(i => i.trim()).filter(Boolean),
-      instructions: formData.instructions.split('\n').map(s => s.trim()).filter(Boolean),
-      imageData: imagePreview,
-      dateAdded: new Date().toISOString()
-    };
+    if (!formData.ingredients.trim()) {
+      showToast('Please enter ingredients.', 'error');
+      return;
+    }
 
-    const newRecipes = [...recipes, newRecipe];
-    saveRecipes(newRecipes);
+    if (!formData.instructions.trim()) {
+      showToast('Please enter instructions.', 'error');
+      return;
+    }
+
+    // For new recipes, require an image
+    if (!isEditing && !formData.image) {
+      showToast('Please upload an image for new recipes.', 'error');
+      return;
+    }
+
+    if (isEditing && editingRecipe) {
+      // Update existing recipe
+      const updatedRecipe: Recipe = {
+        ...editingRecipe,
+        name: formData.name.trim(),
+        ingredients: formData.ingredients.split('\n').map(i => i.trim()).filter(Boolean),
+        instructions: formData.instructions.split('\n').map(s => s.trim()).filter(Boolean),
+        imageData: imagePreview || editingRecipe.imageData,
+      };
+
+      const updatedRecipes = recipes.map(recipe => 
+        recipe.id === editingRecipe.id ? updatedRecipe : recipe
+      );
+      saveRecipes(updatedRecipes);
+      
+      // Reset edit state and form
+      setIsEditing(false);
+      setEditingRecipe(null);
+      setFormData({
+        name: '',
+        ingredients: '',
+        instructions: '',
+        image: null
+      });
+      setImagePreview('');
+      
+      showToast(`Recipe "${updatedRecipe.name}" has been updated successfully!`);
+    } else {
+      // Add new recipe
+      const newRecipe: Recipe = {
+        id: Date.now(),
+        name: formData.name.trim(),
+        ingredients: formData.ingredients.split('\n').map(i => i.trim()).filter(Boolean),
+        instructions: formData.instructions.split('\n').map(s => s.trim()).filter(Boolean),
+        imageData: imagePreview,
+        dateAdded: new Date().toISOString()
+      };
+
+      const newRecipes = [...recipes, newRecipe];
+      saveRecipes(newRecipes);
+      
+      // Reset form
+      setFormData({
+        name: '',
+        ingredients: '',
+        instructions: '',
+        image: null
+      });
+      setImagePreview('');
+      
+      showToast(`Recipe "${newRecipe.name}" has been added successfully!`);
+    }
+  };
+
+  const startEditing = (recipe: Recipe) => {
+    setIsEditing(true);
+    setEditingRecipe(recipe);
+    setFormData({
+      name: recipe.name,
+      ingredients: recipe.ingredients.join('\n'),
+      instructions: recipe.instructions.join('\n'),
+      image: null
+    });
+    setImagePreview(recipe.imageData);
     
-    // Reset form
+    // Add a small delay for smoother transition when coming from modal
+    setTimeout(() => {
+      // Scroll to form section
+      const formContainer = document.querySelector('.form-container');
+      if (formContainer) {
+        formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditingRecipe(null);
     setFormData({
       name: '',
       ingredients: '',
@@ -206,8 +333,6 @@ function App() {
       image: null
     });
     setImagePreview('');
-    
-    alert(`Recipe "${newRecipe.name}" has been added!`);
   };
 
   const filteredRecipes = recipes.filter(recipe => {
@@ -227,24 +352,39 @@ function App() {
   const closeModal = () => {
     setShowModal(false);
     setSelectedRecipe(null);
+    // Also reset edit state if modal is closed
+    if (isEditing) {
+      cancelEditing();
+    }
   };
 
   const handleDeleteRecipe = (recipeId: number, recipeName: string, e?: React.MouseEvent) => {
     e?.stopPropagation(); // Prevent modal from opening when clicking delete
     
-    const confirmed = window.confirm(`Are you sure you want to delete "${recipeName}"? This action cannot be undone.`);
+    setConfirmDelete({
+      show: true,
+      recipeId,
+      recipeName
+    });
+  };
+
+  const confirmDeleteRecipe = () => {
+    const { recipeId, recipeName } = confirmDelete;
     
-    if (confirmed) {
-      const updatedRecipes = recipes.filter(recipe => recipe.id !== recipeId);
-      saveRecipes(updatedRecipes);
-      
-      // Close modal if it's open
-      if (showModal && selectedRecipe?.id === recipeId) {
-        closeModal();
-      }
-      
-      alert(`Recipe "${recipeName}" has been deleted successfully!`);
+    const updatedRecipes = recipes.filter(recipe => recipe.id !== recipeId);
+    saveRecipes(updatedRecipes);
+    
+    // Close modal if it's open
+    if (showModal && selectedRecipe?.id === recipeId) {
+      closeModal();
     }
+    
+    setConfirmDelete({ show: false, recipeId: 0, recipeName: '' });
+    showToast(`Recipe "${recipeName}" has been deleted successfully!`);
+  };
+
+  const cancelDeleteRecipe = () => {
+    setConfirmDelete({ show: false, recipeId: 0, recipeName: '' });
   };
 
   return (
@@ -291,6 +431,16 @@ function App() {
                   >
                     <div className="recipe-card-header">
                       <button
+                        className="edit-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startEditing(recipe);
+                        }}
+                        title="Edit recipe"
+                      >
+                        <EditIcon />
+                      </button>
+                      <button
                         className="delete-button"
                         onClick={(e) => handleDeleteRecipe(recipe.id, recipe.name, e)}
                         title="Delete recipe"
@@ -318,11 +468,25 @@ function App() {
             </div>
           </div>
 
-          <div className="form-container">
+          <div className={`form-container ${isEditing ? 'editing-mode' : ''}`}>
             <div className="section-header">
               <PlusIcon className="section-icon" />
-              <h2>Add New Recipe</h2>
+              <h2>{isEditing ? 'Edit Recipe' : 'Add New Recipe'}</h2>
+              {isEditing && (
+                <button 
+                  className="cancel-edit-button"
+                  onClick={cancelEditing}
+                  title="Cancel editing"
+                >
+                  Cancel
+                </button>
+              )}
             </div>
+            {isEditing && editingRecipe && (
+              <div className="edit-mode-notice">
+                <p>You are editing "<strong>{editingRecipe.name}</strong>". Make your changes below and click "Update Recipe" to save.</p>
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="recipe-name">
@@ -369,7 +533,7 @@ function App() {
               <div className="form-group">
                 <label htmlFor="recipe-image">
                   <RecipeBookIcon className="form-icon" />
-                  Upload Image
+                  {isEditing ? 'Update Image (Optional)' : 'Upload Image'}
                 </label>
                 <div className="image-upload-container">
                   <input
@@ -389,7 +553,7 @@ function App() {
 
               <button type="submit">
                 <PlusIcon />
-                Add Recipe
+                {isEditing ? 'Update Recipe' : 'Add Recipe'}
               </button>
             </form>
           </div>
@@ -400,6 +564,16 @@ function App() {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header-buttons">
                 <span className="close-button" onClick={closeModal}>&times;</span>
+                <button
+                  className="edit-button modal-edit"
+                  onClick={() => {
+                    closeModal();
+                    startEditing(selectedRecipe);
+                  }}
+                  title="Edit recipe (will close this view and open edit form)"
+                >
+                  <EditIcon />
+                </button>
                 <button
                   className="delete-button modal-delete"
                   onClick={() => handleDeleteRecipe(selectedRecipe.id, selectedRecipe.name)}
@@ -444,6 +618,72 @@ function App() {
           </div>
         )}
       </main>
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`toast-notification ${toast.type} ${toast.show ? 'show' : ''}`}>
+          <div className="toast-icon">
+            {toast.type === 'success' && (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+            {toast.type === 'error' && (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+            {toast.type === 'info' && (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <div className="toast-content">
+            <p className="toast-message">{toast.message}</p>
+          </div>
+          <button 
+            className="toast-close"
+            onClick={() => setToast(prev => ({ ...prev, show: false }))}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDelete.show && (
+        <div className="modal show" onClick={cancelDeleteRecipe}>
+          <div className="confirm-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="confirm-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h2 className="confirm-title">Delete Recipe</h2>
+            <p className="confirm-message">
+              Are you sure you want to delete "<strong>{confirmDelete.recipeName}</strong>"? 
+              This action cannot be undone.
+            </p>
+            <div className="confirm-actions">
+              <button 
+                className="confirm-cancel"
+                onClick={cancelDeleteRecipe}
+              >
+                Cancel
+              </button>
+              <button 
+                className="confirm-delete"
+                onClick={confirmDeleteRecipe}
+              >
+                Delete Recipe
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
