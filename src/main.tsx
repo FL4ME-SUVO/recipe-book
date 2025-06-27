@@ -1,3 +1,10 @@
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
 
-// This file is a simple redirect to our index.html which contains our vanilla JS application
-window.location.href = '/index.html';
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
